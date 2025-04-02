@@ -14,10 +14,13 @@ export class User {
   @Prop({ required: true })
   password: string;
 
+  @Prop({ required: true })
+  phone: string;
+
   @Prop({ default: false })
   isVerified: boolean;
 
-  @Prop({ default: 'user' })
+  @Prop({ default: "user" })
   role: string;
 
   @Prop({ type: String, required: false })
@@ -28,6 +31,12 @@ export class User {
 
   @Prop({ type: Date, required: false })
   verificationCodeExpires?: Date;
+
+  @Prop({ type: String, required: false })
+  phoneCode?: string;
+
+  @Prop({ type: Date, required: false })
+  phoneCodeExpires?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

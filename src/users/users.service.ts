@@ -5,9 +5,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User as SchemaUser, UserDocument } from './schema/user.schema';
-import { ChangePasswordDto, CreateUserDto, LoginDto, RefreshTokenDto, UpdateUserDto, VerifyEmailDto } from './dto/user.dto';
+import { ChangePasswordDto, CreateUserDto, LoginDto, RefreshTokenDto, UpdateUserDto, VerifyPhoneDto,VerifyEmailDto } from './dto/user.dto';
 import { EmailService } from '../email/email.service';
 import { User, UserServiceInterface } from './interfaces/user.interface';
+import { TwilioService } from 'src/sms/sms.service';
 
 @Injectable()
 export class UsersService implements UserServiceInterface {
@@ -15,6 +16,7 @@ export class UsersService implements UserServiceInterface {
     @InjectModel(SchemaUser.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private twilioService: TwilioService,
     private emailService: EmailService,
   ) {}
 
@@ -109,6 +111,20 @@ export class UsersService implements UserServiceInterface {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const phoneCode = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const phoneCodeExpires = new Date();
+    phoneCodeExpires.setMinutes(phoneCodeExpires.getMinutes() + 2);
+
+        user.phoneCode = phoneCode;
+    user.phoneCodeExpires = phoneCodeExpires;
+    await user.save();
+    
+    await this.twilioService.sendSms(
+      user.name,
+      user.phone,
+      phoneCode,
+    );
+
     // Generate tokens
     // Access the _id as a property of the document
     const tokens = await this.getTokens(user.id, user.email, user.role);
@@ -122,6 +138,30 @@ export class UsersService implements UserServiceInterface {
       ...tokens,
       user: this.toUserInterface(user),
     };
+  }
+
+  async verifyPhone(verifyPhoneDto: VerifyPhoneDto): Promise<{ message: string }> {
+    const { phone, code } = verifyPhoneDto;
+    const user = await this.userModel.findOne({ phone }).exec();
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.phoneCode !== code) {
+      throw new BadRequestException('Invalid phone code');
+    }
+
+    if (user.phoneCodeExpires && new Date() > user.phoneCodeExpires) {
+      throw new BadRequestException('phone code expired');
+    }
+
+    // Update user verification status
+    user.phoneCode = undefined;
+    user.phoneCodeExpires = undefined;
+    await user.save();
+
+    return { message: 'phone verified successfully' };
   }
 
   // Implementing the missing methods

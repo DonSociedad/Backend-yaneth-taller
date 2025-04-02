@@ -19,6 +19,14 @@ import {
     @IsString()
     @MinLength(6)
     password: string;
+
+    @IsNotEmpty()
+    @IsString()
+    phone: string;
+
+    @IsNotEmpty()
+    @IsString()
+    role: string;
   }
   
   export class UpdateUserDto {
@@ -34,6 +42,14 @@ import {
     @IsString()
     @MinLength(6)
     password?: string;
+
+    @IsOptional()
+    @IsString()
+    phone?: string;
+
+    @IsOptional()
+    @IsString()
+    role?: string;
   }
   
   export class LoginDto {
@@ -63,6 +79,16 @@ import {
     newPassword: string;
   }
   
+  export class VerifyPhoneDto {
+    @IsNotEmpty()
+    @IsEmail()
+    phone: string;
+  
+    @IsNotEmpty()
+    @IsString()
+    code: string;
+  }
+
   export class VerifyEmailDto {
     @IsNotEmpty()
     @IsEmail()

@@ -17,6 +17,7 @@ import {
     LoginDto, 
     RefreshTokenDto, 
     ChangePasswordDto, 
+    VerifyPhoneDto,
     VerifyEmailDto 
   } from './dto/user.dto';
   import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -31,9 +32,9 @@ import {
       return { message: 'User registered successfully. Please check your email for verification code.' };
     }
   
-    @Post('verify-email')
-    verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-      return this.usersService.verifyEmail(verifyEmailDto);
+    @Post('sign')
+    verifyEmail(@Body() verifyPhoneDto: VerifyEmailDto) {
+      return this.usersService.verifyEmail(verifyPhoneDto);
     }
   
     @HttpCode(HttpStatus.OK)
@@ -41,6 +42,11 @@ import {
     login(@Body() loginDto: LoginDto) {
       return this.usersService.login(loginDto);
     }
+
+    @Post('signin/verify-code')
+    verifyPhone(@Body() verifyPhoneDto: VerifyPhoneDto) {
+      return this.usersService.verifyPhone(verifyPhoneDto);
+    }  
   
     @HttpCode(HttpStatus.OK)
     @Post('refresh-token')

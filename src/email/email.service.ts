@@ -15,7 +15,7 @@ export class EmailService {
       secure: this.configService.get('EMAIL_SECURE') === 'true',
       auth: {
         user: this.configService.get('EMAIL_USER'),
-        pass: this.configService.get('EMAIL_PASSWORD'),
+        pass: this.configService.get('EMAIL_PASS'),
       },
     });
 

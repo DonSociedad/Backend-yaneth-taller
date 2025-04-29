@@ -4,7 +4,14 @@ import {
     IsString,
     MinLength,
     IsOptional,
+    IsEnum,
   } from 'class-validator';
+
+  export enum UserRole{
+    USER = 'user',
+    EDITOR = 'editor',
+    ADMIN = 'admin',
+  }
   
   export class CreateUserDto {
     @IsNotEmpty()
@@ -24,9 +31,9 @@ import {
     @IsString()
     phone: string;
 
-    @IsNotEmpty()
-    @IsString()
-    role: string;
+    @IsOptional()
+    @IsEnum(UserRole,{message: 'Role must bee on of: user, editor,admin'})
+    role?: UserRole = UserRole.EDITOR;
   }
   
   export class UpdateUserDto {
@@ -48,8 +55,8 @@ import {
     phone?: string;
 
     @IsOptional()
-    @IsString()
-    role?: string;
+    @IsEnum(UserRole,{message: 'Role must bee on of: user, editor,admin'})
+    role?: UserRole;
   }
   
   export class LoginDto {

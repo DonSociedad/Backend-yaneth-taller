@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { UserRole } from '../dto/user.dto';
 
 export type UserDocument = User & Document;
 
@@ -20,8 +21,11 @@ export class User {
   @Prop({ default: false })
   isVerified: boolean;
 
-  @Prop({ default: "user" })
-  role: string;
+  @Prop({ type: String,
+    enum: Object.values(UserRole),
+    default: UserRole.EDITOR
+   })
+  role: UserRole;
 
   @Prop({ type: String, required: false })
   refreshToken?: string;
